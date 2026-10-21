@@ -1,0 +1,22 @@
+Cíl projektu >		Projekt bude implementovat automatickou správu objednávání kávových objednávek, popřípadě všech objednávek
+
+Tech stack > 		Angular TS/JS, HTML, CSS app, frontend / backend
+
+Popis >		mobilní / desktop aplikace responzivní, vytvoření automatického objednávkového systému pomocí mluveného slova v telefonu, popřípadě konverzace na chatovací stránce. Cílem je kompletně zautomatizovat objednávání káv, tak jak to chtějí zákazníci. Uživatel udělá hovor, nahraje ho a vloží do aplikace. Výstupem je výpis objednávaných věcí, popřípadě automatické doplnění parametrů ("Dobrý den, poprosím kilo kávy" = 1 kg Káva Zrno -> objednat na adresu zákazníka -> počkat na potvrzení, popřípadě vyřešit problémy špatné objednávky)
+
+Struktura aplikace >	Obsahuje více záložek, např. historie objednávek, nebo informace o objednávkách a v hlavní řadě založení nového zákazníka, vložení nových souborů, atd. Tato implementace může být i zautomatizovaná kompletně, např. automatické odesílání na vzdálený server a následný fetch dat ze serveru, API / WebSockets. Funguje i v offline módu, ale je doporučeno připojení k internetu pro GET nebo PUT dat an serveru.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
