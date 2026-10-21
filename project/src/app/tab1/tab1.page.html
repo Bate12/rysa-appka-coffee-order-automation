@@ -1,12 +1,59 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>CounterApp</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Nová objednávka</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <app-counter
-    heading="Nové počítadlo"
-    (saved)="onSaved($event)"
-  ></app-counter>
+<ion-content [fullscreen]="true" class="ion-padding ion-text-center">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Nová objednávka</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Sekce pro nahrávání hlasu -->
+  <div class="recording-container">
+    <ion-button 
+      shape="circle" 
+      [color]="isRecording ? 'danger' : 'primary'" 
+      class="mic-button"
+      (click)="toggleRecording()">
+      <ion-icon [name]="isRecording ? 'stop' : 'mic'" size="large"></ion-icon>
+    </ion-button>
+    
+    <p *ngIf="isRecording" color="danger" class="recording-text">Nahrávám...</p>
+    <p *ngIf="!isRecording" class="recording-text">Stiskněte pro hlasovou objednávku</p>
+    
+    <!-- Zde se živě slovo od slova vypisuje řeč -->
+    <p *ngIf="interimTranscript" class="ion-margin-top" style="font-style: italic; color: var(--ion-color-medium);">
+      "{{ interimTranscript }}..."
+    </p>
+  </div>
+
+  <!-- Sekce pro textovou objednávku -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Výpis objednávky</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-textarea 
+        [(ngModel)]="transcript" 
+        placeholder="Zde se objeví přepis vašeho hlasu..." 
+        auto-grow="true"
+        rows="3" 
+        fill="outline">
+      </ion-textarea>
+      
+      <ion-button 
+        expand="block" 
+        class="ion-margin-top" 
+        color="success"
+        [disabled]="!transcript"
+        (click)="processOrder()">
+        <ion-icon name="send" slot="start"></ion-icon>
+        Odeslat k AI analýze
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>

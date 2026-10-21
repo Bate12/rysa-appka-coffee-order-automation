@@ -1,100 +1,62 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, inject, computed, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonNote,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
-  AlertController,
-  ToastController,
-  IonSearchbar,
-  IonSelect,
-  IonSelectOption,
+  IonButton, IonContent, IonHeader, IonItem, IonLabel, IonList,
+  IonTitle, IonToolbar, AlertController, ToastController, 
+  IonSearchbar, IonSelect, IonSelectOption, IonBadge, IonText
 } from '@ionic/angular';
-import { CounterService } from '../services/counter.service';
+import { OrderService } from '../services/order.service';
+import { IonSpinner } from '@ionic/angular';
+import { IonNote } from '@ionic/angular';
+
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
-  imports: [
-    DatePipe,
-    DecimalPipe,
-    FormsModule,
-    IonButton,
-    IonContent,
-    IonHeader,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonNote,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
-    IonSearchbar,
-    IonSelect,
-    IonSelectOption,
+  imports: [IonNote, IonSpinner, 
+    DatePipe, FormsModule, IonButton, IonContent, IonHeader,
+    IonItem, IonLabel, IonList, IonTitle, IonToolbar, 
+    IonSearchbar, IonSelect, IonSelectOption, IonBadge, IonText
   ],
 })
-export class Tab2Page implements OnInit {
-  readonly counterService = inject(CounterService);
+export class Tab2Page {
+  readonly orderService = inject(OrderService);
   private alertController = inject(AlertController);
-  private toastController = inject(ToastController);
+  private readonly toastService = inject(ToastService);
 
   searchQuery = signal('');
-  sortOption = signal<'newest' | 'name' | 'value'>('newest');
+  sortOption = signal<'newest' | 'name'>('newest');
 
-  readonly totalSum = computed(() => {
-    return this.counterService.counters().reduce((sum, counter) => sum + counter.value, 0);
-  });
-
-  readonly averageValue = computed(() => {
-    const counters = this.counterService.counters();
-    if (counters.length === 0) return 0;
-    return this.totalSum() / counters.length;
-  });
-
-  readonly displayedCounters = computed(() => {
-    let list = this.counterService.counters();
+  // Vypočítaný signál pro filtrování a řazení
+  readonly displayedOrders = computed(() => {
+    let list = this.orderService.orders();
     const query = this.searchQuery().trim().toLowerCase();
 
+    // Hledání podle jména zákazníka nebo názvu produktu
     if (query) {
-      list = list.filter(c => c.name.toLowerCase().includes(query));
+      list = list.filter(o => 
+        o.customerName.toLowerCase().includes(query) || 
+        o.items.some(item => item.name.toLowerCase().includes(query))
+      );
     }
 
     const sortType = this.sortOption();
     return [...list].sort((a, b) => {
       if (sortType === 'name') {
-        return a.name.localeCompare(b.name);
+        return a.customerName.localeCompare(b.customerName);
       }
-      if (sortType === 'value') {
-        return b.value - a.value;
-      }
-
+      // Výchozí: od nejnovějšího
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   });
 
-  async ngOnInit(): Promise<void> {
-    await this.counterService.initialize();
-  }
-
-  async remove(id: string): Promise<void> {
-    await this.counterService.remove(id);
-    await this.showToast('Záznam byl úspěšně odstraněn.', 'danger');
-  }
-
   async confirmClear(): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Opravdu vymazat?',
-      message: 'Tato akce trvale odstraní celou historii počítadel.',
+      message: 'Tato akce trvale odstraní celou historii objednávek.',
       buttons: [
         { text: 'Zrušit', role: 'cancel' },
         { text: 'Vymazat', role: 'destructive', handler: () => this.clear() },
@@ -104,17 +66,8 @@ export class Tab2Page implements OnInit {
   }
 
   private async clear(): Promise<void> {
-    await this.counterService.clear();
-    await this.showToast('Historie byla kompletně vymazána.', 'medium');
+    await this.orderService.clearHistory();
+    await this.toastService.showToast('Historie objednávek byla vymazána.', 'danger');
   }
 
-  private async showToast(message: string, color: string): Promise<void> {
-    const toast = await this.toastController.create({
-      message,
-      duration: 2000,
-      color,
-      position: 'bottom',
-    });
-    await toast.present();
-  }
 }

@@ -35,3 +35,10 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* Globální odsazení všech horních toast notifikací od hrany displeje */
+ion-toast.toast-top::part(container) {
+  /* Pokud chcete, aby byla notifikace pod modrou hlavičkou, dejte cca 60px. 
+     Pokud jen kousek od horní hrany, stačí 15px. */
+  margin-top: 1000px !important; 
+}

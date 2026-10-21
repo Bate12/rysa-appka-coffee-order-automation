@@ -1,23 +1,16 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Historie</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Historie objednávek</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  @if (!counterService.initialized()) {
-    <div class="state-message">
-      <ion-spinner></ion-spinner>
-      <p>Načítám historii…</p>
-    </div>
-  } @else if (counterService.counters().length === 0) {
-    <p class="state-message">Historie je zatím prázdná.</p>
+  @if (orderService.orders().length === 0) {
+    <p class="state-message">Zatím nebyly vytvořeny žádné objednávky.</p>
   } @else {
     <div class="history-header">
       <div>
-        <p>Počet záznamů: {{ counterService.counters().length }}</p>
-        <p>Celkový součet: <strong>{{ totalSum() }}</strong></p>
-        <p>Průměr hodnot: <strong>{{ averageValue() | number:'1.0-2' }}</strong></p>
+        <p>Celkem objednávek: <strong>{{ orderService.orders().length }}</strong></p>
       </div>
       <ion-button color="danger" fill="outline" size="small" (click)="confirmClear()">
         Vymazat vše
@@ -26,7 +19,7 @@
 
     <div class="toolbar-tools">
       <ion-searchbar 
-        placeholder="Hledat podle názvu..." 
+        placeholder="Hledat zákazníka..." 
         [ngModel]="searchQuery()" 
         (ngModelChange)="searchQuery.set($event)"
         animated="true">
@@ -38,31 +31,33 @@
           [ngModel]="sortOption()" 
           (ngModelChange)="sortOption.set($event)">
           <ion-select-option value="newest">Nejnovější</ion-select-option>
-          <ion-select-option value="name">Názvu (A-Z)</ion-select-option>
-          <ion-select-option value="value">Hodnoty (Nejvyšší)</ion-select-option>
+          <ion-select-option value="name">Jména (A-Z)</ion-select-option>
         </ion-select>
       </ion-item>
     </div>
 
     <ion-list>
-      @for (counter of displayedCounters(); track counter.id) {
+      @for (order of displayedOrders(); track order.id) {
         <ion-item>
           <ion-label>
-            <h2>{{ counter.name }}</h2>
-            <p>{{ counter.createdAt | date: 'd. M. y, HH:mm' }}</p>
+            <h2>{{ order.customerName }}</h2>
+            <p>{{ order.createdAt | date: 'd. M. y, HH:mm' }}</p>
+            
+            <!-- Výpis jednotlivých položek v objednávce -->
+            <ion-text color="medium" class="ion-text-wrap">
+              <p>
+                @for (item of order.items; track item.name) {
+                  {{ item.count }} {{ item.unit }} {{ item.name }}<br>
+                }
+              </p>
+            </ion-text>
           </ion-label>
 
-          <ion-note slot="end">{{ counter.value }}</ion-note>
-
-          <ion-button
-            slot="end"
-            color="danger"
-            fill="clear"
-            aria-label="Odstranit záznam"
-            (click)="remove(counter.id)"
-          >
-            Odstranit
-          </ion-button>
+          <ion-badge 
+            slot="end" 
+            [color]="order.status === 'pending' ? 'warning' : 'success'">
+            {{ order.status === 'pending' ? 'Zpracovává se' : 'Hotovo' }}
+          </ion-badge>
         </ion-item>
       } @empty {
         <p class="state-message">Nenalezeny žádné záznamy pro "<strong>{{ searchQuery() }}</strong>".</p>

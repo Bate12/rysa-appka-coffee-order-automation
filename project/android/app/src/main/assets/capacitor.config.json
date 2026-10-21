@@ -1,5 +1,5 @@
 {
-	"appId": "cz.utb.counterapp",
-	"appName": "CounterApp",
+	"appId": "io.ionic.starter",
+	"appName": "counter-app",
 	"webDir": "www"
 }
